@@ -12,6 +12,8 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "./api/posts";
 import axios from "axios";
+import useWindowSize from "./hooks/useWindowSize";
+import useAxiosFetchData from "./hooks/useAxiosFetchData";
 
 const App = () => {
     const navigate = useNavigate();
@@ -22,22 +24,14 @@ const App = () => {
     const [search, setSearch] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [posts, setPosts] = useState([]);
+    const { width } = useWindowSize();
+    const { data, isLoading, fetchError } = useAxiosFetchData(
+        "http://localhost:3500/posts"
+    );
 
     useEffect(() => {
-        const fetchPostsData = async () => {
-            try {
-                const resp = await api.get("/posts");
-                setPosts(resp.data);
-            } catch (err) {
-                {
-                    err.resp
-                        ? console.log(err.resp.data)
-                        : console.log(`Error ${err.message}`);
-                }
-            }
-        };
-        fetchPostsData();
-    }, []);
+        setPosts(data);
+    }, [data]);
 
     useEffect(() => {
         const filteredResults = posts.filter((post) => {
@@ -107,10 +101,19 @@ const App = () => {
 
     return (
         <div className="App">
-            <Header title="React Blog" />
+            <Header title="React Blog" width={width} />
             <Nav search={search} setSearch={setSearch} />
             <Routes>
-                <Route path="/" element={<Home posts={searchResults} />} />
+                <Route
+                    path="/"
+                    element={
+                        <Home
+                            posts={searchResults}
+                            isLoading={isLoading}
+                            fetchError={fetchError}
+                        />
+                    }
+                />
                 <Route
                     path="/post"
                     element={

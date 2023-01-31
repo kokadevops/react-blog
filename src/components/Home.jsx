@@ -1,15 +1,21 @@
 import Item from "./Item";
 
-const Home = ({ posts }) => {
+const Home = ({ posts, fetchError, isLoading }) => {
     return (
         <main className="Home">
-            {posts.length ? (
-                <Item posts={posts} />
-            ) : (
-                <p style={{ marginTop: "2rem", color: "red" }}>
-                    no posts match
+            {isLoading && <p className="statusMsg">Loading...</p>}
+            {!isLoading && fetchError && (
+                <p style={{ color: "tomato" }} className="statusMsg">
+                    {fetchError}
                 </p>
             )}
+            {!isLoading &&
+                !fetchError &&
+                (posts.length ? (
+                    <Item posts={posts} />
+                ) : (
+                    <p className="statusMsg">No posts to display</p>
+                ))}
         </main>
     );
 };
